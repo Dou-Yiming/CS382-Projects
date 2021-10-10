@@ -18,7 +18,9 @@ def parse_args():
                         default='../data/', type=str)
     parser.add_argument('--discounting', dest='discounting',
                         default='Good-Turing', type=str)
-    parser.add_argument('-s', dest='save_model',
+    parser.add_argument('--save', dest='save_model',
+                        default=False, type=bool)
+    parser.add_argument('--train', dest='train',
                         default=False, type=bool)
     parser.add_argument('--alpha', dest='alpha',
                         default=1, type=float)
@@ -28,8 +30,11 @@ def parse_args():
 def main(args):
     model = n_gram_model()
     corpus = Corpus(args.dataset_path)
-    train(model, corpus)
-    discounting(model,corpus,args)
+    if args.train:
+        train(model, corpus)
+        discounting(model,corpus,args)
+    else:
+        model.load()
     test(model, corpus.test_set)
     if args.save_model:
         model.save()

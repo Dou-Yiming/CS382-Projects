@@ -9,12 +9,9 @@ sys.path.append("..")
 from lib.corpus import Corpus
 from lib.model import n_gram_model
 
-def log_p(model: n_gram_model,seq):
-    assert 1 <= len(seq) and len(seq) <= 4
-
-def save(res,res_path='../result/'):
-    print("Saving results")
-    with open(osp.join(res_path,'PPL.json'),'w') as f:
+def save(res, res_path='../result/PPL.json'):
+    print("Saving results to {}".format(res_path))
+    with open(res_path,'w') as f:
         json.dump(res,f)
 
 def test(model: n_gram_model, test_set: list):
