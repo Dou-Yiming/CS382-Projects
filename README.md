@@ -1,5 +1,5 @@
 # CS382-Projects
-The projects of SJTU-CS382 Natual Language Processing.
+The projects of SJTU-CS382 Natural Language Processing.
 
 #### Project1: Smoothing Algorithms of n-gram Language Model
 
