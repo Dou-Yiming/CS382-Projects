@@ -1,7 +1,5 @@
 # Project1: Smoothing Algorithms of n-gram Language Model
 
-<center>519021910366 窦铱明</center>
-
 ## 1. Construction of n-gram Language Model
 
 In order to thoroughly compare the ability of different language models, I constructed **4 models** with different grams in this project, including **unigram, bigram, trigram and 4-gram**. 
