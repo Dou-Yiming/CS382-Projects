@@ -28,19 +28,19 @@ def test(model: n_gram_model, test_set: list):
             res['unigram']=ans
         elif i == 2:
             for j in tqdm(range(1, len(test_set))):
-                seq = (test_set[j-1],test_set[j])
+                seq = (test_set[i-1],test_set[i])
                 ans += np.log2(model.bigram[seq])
             ans = pow(2, -1/len(test_set)*ans)
             res['bigram']=ans
         elif i == 3:
             for j in tqdm(range(2, len(test_set))):
-                seq = (test_set[j-2],test_set[j-1],test_set[j])
+                seq = (test_set[i-2],test_set[i-1],test_set[i])
                 ans += np.log2(model.trigram[seq])
             ans = pow(2, -1/len(test_set)*ans)
             res['trigram']=ans
         elif i == 4:
             for j in tqdm(range(3, len(test_set))):
-                seq = (test_set[j-3],test_set[j-2],test_set[j-1],test_set[j])
+                seq = (test_set[i-3],test_set[i-2],test_set[i-1],test_set[i])
                 ans += np.log2(model.quagram[seq])
             ans = pow(2, -1/len(test_set)*ans)
             res['quagram']=ans

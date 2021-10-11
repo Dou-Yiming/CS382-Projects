@@ -111,16 +111,18 @@ In this section, the Add-k Smoothing and Good-Turing Smoothing is discussed in d
 
 In this section, the effect of Add-k Smoothing and Good-Turing Smoothing is tested respectively using 4 models.
 
-For the Add-k Smoothing, experiments using different values of $k$ ranging from $10^{-20}$ to $10$ is performed on the given dataset, while only one experiment is performed using Good-Turing Smoothing. The n-gram models are trained on *train_set.txt* and tested on *test_set.txt*. Notice that **the whole test_set is regarded as a single sentence** in the experiments, thus only one ending token is added to the end of the test_set.
+For the Add-k Smoothing, experiments using different values of $k$ ranging from $10^{-20}$ to $10$ is performed on the given dataset, while only one experiment is performed using Good-Turing Smoothing. The n-gram models are trained on *train_set.txt* and tested on *test_set.txt*. Moreover, Good-Turing Smoothing is only done on the cases with $r\leq50$.
+
+Notice that **the whole test_set is regarded as a single sentence** in the experiments, thus only one ending token is added to the end of the test_set.
 
 The perplexity results are shown in the following table:
 
-| Model\Method | Good-Turing | Add-k <br />(k=$10$) | Add-k<br />(k=$1$) | Add-k<br />(k=$0.1$) | Add-k<br />(k=$0.01$) | Add-k<br />(k=$10^{-5}$) | Add-k<br />(k=$10^{-20}$) |
-| :----------: | :---------: | :------------------: | :----------------: | :------------------: | :-------------------: | :----------------------: | :-----------------------: |
-| **unigram**  |   1927.62   |       2037.70        |    **1892.48**     |       1932.68        |        1986.75        |         2161.52          |          3295.86          |
-|  **bigram**  | **282.72**  |       78372.47       |      8226.83       |       1078.99        |        362.84         |          283.34          |          283.26           |
-| **trigram**  |    48.81    |      4699365.13      |     795314.91      |       85486.03       |        8651.73        |          52.03           |         **43.42**         |
-|  **4-gram**  |  **2.67**   |     14030767.85      |    14030778.65     |     14030886.65      |      14031966.61      |       15230729.61        |          1.2e+21          |
+| Model\Method | Good-Turing | Add-k <br />(k=$10$) | Add-k<br />(k=$1$) | Add-k<br />(k=$0.01$) | Add-k<br />(k=$10^{-5}$) | Add-k<br />(k=$10^{-20}$) |
+| :----------: | :---------: | :------------------: | :----------------: | :-------------------: | :----------------------: | :-----------------------: |
+| **unigram**  | **1864.24** |       2037.71        |      1892.49       |        1986.76        |         2161.53          |          3295.87          |
+|  **bigram**  | **130.77**  |      373872.59       |      83899.55      |        5104.26        |         2071.04          |        1586870.85         |
+| **trigram**  |  **7.72**   |      4768431.84      |     2341297.87     |       353648.89       |         59004.89         |       3971517736.62       |
+|  **4-gram**  |  **1.66**   |     10646985.95      |     7815486.22     |      3188502.67       |        1024714.42        |       1041193555.62       |
 
 ## 4. Conclusion
 
@@ -132,7 +134,7 @@ Based on the results, we can come to the following conclusions:
 
 2. When it comes to **robustness**, Good-Turing Smoothing largely outperforms Add-k Smoothing. As we can see from the table above, if inappropriate $k$ is chosen, Add-k smoothing algorithm may result in extremely large perplexity, especially for models with larger grams. 
 
-    Although Add-k Smoothing slightly outperforms Good-Turing Smoothing in several cases, Good-Turing Smoothing may be a better choice in most situations.
+    Therefore, Good-Turing Smoothing may be a better choice in most situations.
 
 ## 5. Reference
 
