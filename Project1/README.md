@@ -2,6 +2,8 @@
 
 ## 1. Construction of n-gram Language Model
 
+#### 1.1 Model Design
+
 In order to thoroughly compare the ability of different language models, I constructed **4 models** with different grams in this project, including **unigram, bigram, trigram and 4-gram**. 
 
 n-gram language model is **statistic model**, which means that the training procedure only includes counting the words or phrases in the corpus. 
@@ -19,6 +21,8 @@ Then, we traverse through the train_set and **count the number of each word**, p
 for word in train_set:
 	model.unigram[word] += 1
 ```
+
+#### 1.2 Sparsity Problem
 
 After counting each word in the train_set, we notice that some of the words do not exist in train_set, making the count of them 0. This problem is also called **sparsity problem**, which is a serious problem for the following reason.
 
