@@ -1,40 +1,57 @@
+from re import L
+from lib.corpus import Corpus
+from lib.model import n_gram_model
+from lib.discounting import discounting
 import sys
 from tqdm import tqdm
-sys.path.append("..")
-from lib.model import n_gram_model
-from lib.corpus import Corpus
 
-def train(model: n_gram_model, corpus: Corpus):
-    train_set = corpus.train_set
-    db = corpus.db
-    # init
-    for word in db:
-        model.unigram[word] = 0
-    for i in range(1, len(db)):
-        key = (db[i-1], db[i])
-        model.bigram[key] = 0
-    for i in range(2, len(db)):
-        key = (db[i-2], db[i-1], db[i])
-        model.trigram[key] = 0
-    for i in range(3, len(db)):
-        key = (db[i-3], db[i-2], db[i-1], db[i])
-        model.quagram[key] = 0
-    # train unigram
-    print("Training unigram")
-    for word in tqdm(train_set):
-        model.unigram[(word)] += 1
-    # train bigram
-    print("Training bigram")
-    for i in tqdm(range(1, len(train_set))):
-        key = (train_set[i-1], train_set[i])
-        model.bigram[key] += 1
-    # # train trigram
-    print("Training trigram")
-    for i in tqdm(range(2, len(train_set))):
-        key = (train_set[i-2], train_set[i-1], train_set[i])
-        model.trigram[key] += 1
-    # # train quagram
-    print("Training quagram")
-    for i in tqdm(range(3, len(train_set))):
-        key = (train_set[i-3], train_set[i-2], train_set[i-1], train_set[i])
-        model.quagram[key] += 1
+divide_mapping = {
+    'quagram': 'trigram',
+    'trigram': 'bigram',
+    'bigram': 'unigram',
+}
+
+
+def init_model(model: n_gram_model, corpus: Corpus):
+    # init every probability
+    print("Initializing unigram model")
+    for word in tqdm(corpus.vocab):
+        model.model['unigram'][tuple(word)] = 0
+    print("Initializing bigram model")
+    for i in tqdm(range(corpus.vocab_size)):
+        for j in range(corpus.vocab_size):
+            key = (corpus.vocab[i], corpus.vocab[j])
+            model.model['bigram'][key] = 0
+
+
+def count_phrase(model: n_gram_model, train_set):
+    for phrase, tuples in train_set.items():
+        print("Counting {} phrases".format(phrase))
+        for key in tqdm(tuples):
+            if not key in model.model[phrase].keys():
+                model.model[phrase][key] = 0
+            model.model[phrase][key] += 1
+
+
+def cnt2prob(model: n_gram_model):
+    print("Computing probability")
+    model.model['quagram'] = {k: v/model.model['trigram'][(k[0], k[1], k[2])]
+                              for k, v in model.model['quagram'].items()}
+    model.model['trigram'] = {k: v/model.model['bigram'][(k[0], k[1])]
+                              for k, v in model.model['trigram'].items()}
+    model.model['bigram'] = {k: v/model.model['unigram'][tuple([k[0]])]
+                             for k, v in model.model['bigram'].items()}
+    word_sum = sum(model.model['unigram'].values())
+    model.model['unigram'] = {k: v/word_sum for k,
+                              v in model.model['unigram'].items()}
+
+
+def train(model: n_gram_model, corpus: Corpus,cfg):
+    # init_model(model,corpus)
+    print("Training n-gram Models")
+    count_phrase(model, corpus.train_set)
+    discounting(model,corpus,cfg)
+    cnt2prob(model)
+    print("Model size: {}".format(
+        {name: len(v.keys()) for name, v in model.model.items()}
+    ))

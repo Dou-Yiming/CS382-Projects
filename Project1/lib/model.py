@@ -3,31 +3,28 @@ import os
 import os.path as osp
 import pickle
 
+from tqdm.std import tqdm
+
 
 class n_gram_model:
     def __init__(self):
-        self.unigram = {}
-        self.bigram = {}
-        self.trigram = {}
-        self.quagram = {}
+        self.model = {
+            'unigram': {},
+            'bigram': {},
+            'trigram': {},
+            'quagram': {}
+        }
+        
 
-    def save(self, model_path='../trained_model/model.pkl'):
+    def save(self, model_path='./trained_model/model.pkl'):
         print('Saving model to {}'.format(model_path))
-        model = {'unigram': self.unigram,
-                 'bigram': self.bigram,
-                 'trigram': self.trigram,
-                 'quagram': self.quagram}
         with open(model_path, 'wb') as f:
-            pickle.dump(model, f)
+            pickle.dump(self.model, f)
 
-    def load(self, model_path='../trained_model/model.pkl'):
+    def load(self, model_path='./trained_model/model.pkl'):
         print("Loading model from {}".format(model_path))
         try:
             f = open(model_path, 'rb')
-            model = pickle.load(f)
-            self.unigram = model['unigram']
-            self.bigram = model['bigram']
-            self.trigram = model['trigram']
-            self.quagram = model['quagram']
+            self.model = pickle.load(f)
         except:
             print("ERROR: Cannot Load File from {}".format(model_path))

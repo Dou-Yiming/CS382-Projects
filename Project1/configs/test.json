@@ -1,0 +1,8 @@
+{
+    "unk_thres": 1,
+    "lambd": 0.4,
+    "model":"quagram",
+    "discounting":"Good-Turing",
+    "train": 0,
+    "save": 0
+}

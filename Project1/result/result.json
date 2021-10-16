@@ -1,0 +1,1 @@
+{"unk_thres": 1, "lambd": 0.95, "model": "unigram", "discounting": "Good-Turing", "train": 0, "save": 0, "PPL": 1536.5639067442116}

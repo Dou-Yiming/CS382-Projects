@@ -40,15 +40,57 @@ Therefore, some algorithms have to be designed to solve sparsity problem. There 
     $$
     $d(y,\omega)$ is called "discounting coefficient".
 
-2. **Back-off & Interpolation:** Recursively move back to lower-order n-grams, until we get a robust estimation.
+2. **Back-off & Interpolation:** Recursively move back to lower-order n-grams, in the end we will get a robust estimation.
 
-In this project, $2$ discounting algorithms are designed and implemented, which is **Add-k Smoothing** and **Good-Turing Smoothing**, respectively. The detailed design and implementation are shown in the next section.
+In this project, $3$ discounting algorithms are designed and implemented, which is **Jelinek-Mercer Smoothing**, **Add-k Smoothing** and **Good-Turing Smoothing**, respectively. The detailed design and implementation are shown in the next section.
 
 ## 2. Design and Implementation of Discounting Algorithms
 
-In this section, the Add-k Smoothing and Good-Turing Smoothing is discussed in detail.
+In this section, the 3 discounting algorithms are discussed in detail.
 
-#### 2.1 Add-k Smoothing
+#### 2.1 Jelinek-Mercer Smoothing (Interpolation)
+
+- Basic Idea
+
+    Some of the n-grams in the test set may not be included in the train-set, making their probability become $0$. We can estimate the probability of these n-grams by combine different n-grams linearly interpolating all the models.
+
+- Algorithm Design
+
+    For example, if we are willing to estimate trigram probability, the probability can be computed by a weighted sum of trigram, bigram and unigram probabilities:
+    $$
+    P(\omega_n|\omega_{n-2},\omega_{n-1})=\lambda_1P(\omega_n|\omega_{n-2},\omega_{n-1})+\lambda_2P(\omega_n|\omega_{n-1})+\lambda_3P(\omega_n)
+    $$
+    We should make sure that $\sum_i\lambda_i=1$.
+
+    Obviously, the formula can be extended to fit the higher-dimension:
+    $$
+    P(\omega_i|W_{i-n+1}^{i-1})=\lambda_nP(\omega_i|W_{i-n+1}^{i-1})+(1-\lambda_n)P(\omega_i|W_{i-n+2}^{i-1})
+    $$
+    
+
+- Implementation
+
+    When it comes to the specific implementation of the algorithm, it can be recursively executed by the following code:
+
+    ```python
+    num2name = {
+        1: 'unigram',
+        2: 'bigram',
+        3: 'trigram',
+        4: 'quagram'
+    }
+    def prob(model, key, lambd):
+    	# end of recursion    
+        if len(key) == 1:
+            return model['unigram'][key]
+    
+        model_name = num2name[len(key)]
+        if not key in model[model_name].keys():
+            return (1 - lambd) * prob(model, tuple(key[1:]), lambd)
+        return lambd * model[model_name][key] + (1-lambd) * prob(model, tuple(key[1:]), lambd)
+    ```
+
+#### 2.2 Add-k Smoothing
 
 - Basic Idea
 
@@ -77,7 +119,7 @@ In this section, the Add-k Smoothing and Good-Turing Smoothing is discussed in d
         word: (count+k)/(N+k*V) for word, count in model.unigram.items()}
     ```
 
-#### 2.2 Good-Turing Smoothing
+#### 2.3 Good-Turing Smoothing
 
 - Basic Idea
 
@@ -113,32 +155,51 @@ In this section, the Add-k Smoothing and Good-Turing Smoothing is discussed in d
 
 ## 3. Experiments & PPL Results
 
-In this section, the effect of Add-k Smoothing and Good-Turing Smoothing is tested respectively using 4 models.
+In this section, the experiments testing the effects of algorithms are performed.
 
-For the Add-k Smoothing, experiments using different values of $k$ ranging from $10^{-20}$ to $10$ is performed on the given dataset, while only one experiment is performed using Good-Turing Smoothing. The n-gram models are trained on *train_set.txt* and tested on *test_set.txt*. Moreover, Good-Turing Smoothing is only done on the cases with $r\leq50$.
+To compare the ability of models with different grams and test the influence of lambda in interpolation, the perplexity is tested using models ranging from unigram to 4-gram and lambda ranging from $0.05$ to $0.95$.
 
-Notice that **the whole test_set is regarded as a single sentence** in the experiments, thus only one ending token is added to the end of the test_set.
+Notice that **the whole test_set is regarded as a single sentence** in the experiments, thus only one beginning token and one ending token are added to the test_set. Moreover, due to the significant long-tail effect of the dataset that is shown in the figure below ($cnt=log_{10}cnt$), the words that show less than $2$ times in the train-set are replaced with "UNK", resulting in the vocabulary size shrinking to $118849$.
+
+<img src=".\visualization\train_set.jpg" style="zoom:60%;" />
+
+In the **first** experiment, **only the interpolation algorithm is used**, while no discounting is performed.
 
 The perplexity results are shown in the following table:
 
-| Model\Method | Good-Turing | Add-k <br />(k=$10$) | Add-k<br />(k=$1$) | Add-k<br />(k=$0.01$) | Add-k<br />(k=$10^{-5}$) | Add-k<br />(k=$10^{-20}$) |
-| :----------: | :---------: | :------------------: | :----------------: | :-------------------: | :----------------------: | :-----------------------: |
-| **unigram**  | **1864.24** |       2037.71        |      1892.49       |        1986.76        |         2161.53          |          3295.87          |
-|  **bigram**  | **130.77**  |      373872.59       |      83899.55      |        5104.26        |         2071.04          |        1586870.85         |
-| **trigram**  |  **7.72**   |      4768431.84      |     2341297.87     |       353648.89       |         59004.89         |       3971517736.62       |
-|  **4-gram**  |  **1.66**   |     10646985.95      |     7815486.22     |      3188502.67       |        1024714.42        |       1041193555.62       |
+| Model\lambda |    0.05    |    0.1     |    0.2     |     0.4      |    0.8     |    0.95    |
+| :----------: | :--------: | :--------: | :--------: | :----------: | :--------: | :--------: |
+| **unigram**  |  1536.56   |  1536.56   |  1536.56   |   1536.56    |  1536.56   |  1536.56   |
+|  **bigram**  |   950.82   |   802.16   |   651.93   |    521.21    | **468.98** | **561.97** |
+| **trigram**  |   705.02   |   575.16   | **471.54** | ***426.00*** |   704.34   |  1821.56   |
+|  **4-gram**  | **647.07** | **542.45** |   483.24   |    547.17    |  2171.33   |  16776.59  |
+
+In the **second** experiment, the **Good-Turing algorithm is performed first**, followed by interpolation algorithm.
+
+The perplexity results are shown in the following table:
+
+| Model\lambda |    0.05    |    0.1     |    0.2     |    0.4     |    0.8     |    0.95    |
+| :----------: | :--------: | :--------: | :--------: | :--------: | :--------: | :--------: |
+| **unigram**  |  1536.56   |  1536.56   |  1536.56   |  1536.56   |  1536.56   |  1536.56   |
+|  **bigram**  |   980.45   |   834.46   |   685.76   |   556.30   | **512.26** | **620.71** |
+| **trigram**  |   768.97   |   639.77   | **536.97** | **500.26** |   873.91   |  2328.53   |
+|  **4-gram**  | **725.77** | **623.15** |   571.22   |   672.11   |  2868.68   |  23084.52  |
 
 ## 4. Conclusion
 
 Based on the results, we can come to the following conclusions:
 
-1. Generally speaking, **models with larger grams performs better than those with lower gram**s (suppose that you have chosen the appropriate discounting method). The reason is that models with larger grams takes more context into account, thus being more robust.
+1. For smaller value of $\lambda$, models with larger grams performs better. 
 
-    An interesting idea: This conclusion is quite similar to the fact that **LSTMs usually outperforms Vanilla RNNs** due to its capability of considering more context!
+    The reason is that when $\lambda$ is small, the influence of sparsity problem is relatively small, making it rely more on interpolated values.
 
-2. When it comes to **robustness**, Good-Turing Smoothing largely outperforms Add-k Smoothing. As we can see from the table above, if inappropriate $k$ is chosen, Add-k smoothing algorithm may result in extremely large perplexity, especially for models with larger grams. 
+2. To reach the best result of perplexity, the value of $\lambda$ should not be too large or too small. 
 
-    Therefore, Good-Turing Smoothing may be a better choice in most situations.
+    As is shown in the table above, the best PPL result is $426.00$ when $\lambda=0.4$ and trigram model is used.
+
+3. Performing Good-Turing may result in larger perplexity.
+
+    Generally speaking, the model that uses Good-Turing algorithm results in perplexity that is slightly larger than the model that does not use it.
 
 ## 5. Reference
 
@@ -152,17 +213,15 @@ Based on the results, we can come to the following conclusions:
 
 ## 6. Supplementary
 
-1. To **execute the code**, you may simply run the code below in the project folder:
+1. To **execute the code**, you may simply run the code below in the project folder (parameters can be modified in config file):
 
     ```shell
-    cd tools
     # Train the model and save model parameters to trained_model folder
-    python ../main.py --discounting AddAlpha --alpha 1e-5 --save 1 --train 1 # Add-k Smoothing
-    python ../main.py --discounting Good-Turing --save 1 --train 1 # Good-Turing Smoothing
+    python ./main.py --config_path ./configs/default.json
     # Load the trained model and only test perplexity
-    python ../main.py
+    python ./main.py --config_path ./configs/test.json
     ```
-
+    
     Packages you may need to install by simply executing `pip install package-name`:
 
     ```
@@ -170,9 +229,12 @@ Based on the results, we can come to the following conclusions:
     tqdm
     pprint
     argparse
+    easydict
     ```
+    
+2. **I guarantee that everything of the code and report is done by myself without using any complex open-source tool other than basic packages such as numpy**. 
 
-2. **I guarantee that everything of the code and report is done by myself without using any complex open-source tool other than basic packages such as numpy**. If you have any question for any section of this project, please feel free to contact me by the following methods:
+    If you have any question for any section of this project, please feel free to contact me by the following methods:
 
     E-mail: [douyiming@sjtu.edu.cn](mailto:douyiming@sjtu.edu.cn)
 
