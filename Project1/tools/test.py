@@ -44,13 +44,10 @@ def prob(model: n_gram_model, key, lambd):
 
 def test(model: n_gram_model, corpus: Corpus, cfg):
     replace_UNK(model, corpus)
-    lams=[0.05,0.1,0.2,0.4,0.8,0.95]
-    for l in lams:
-        cfg.lambd=l
-        print("Testing (lambda = {})".format(cfg.lambd))
-        PPL = 0
-        for key in tqdm(corpus.test_set[cfg.model]):
-            PPL += np.log2(prob(model, key, cfg.lambd))
-        PPL = pow(2, -1 / len(corpus.test_set['unigram']) * PPL)
-        print("PPL = {:.2f}".format(PPL))
-        save(PPL, cfg)
+    print("Testing (lambda = {})".format(cfg.lambd))
+    PPL = 0
+    for key in tqdm(corpus.test_set[cfg.model]):
+        PPL += np.log2(prob(model, key, cfg.lambd))
+    PPL = pow(2, -1 / len(corpus.test_set['unigram']) * PPL)
+    print("PPL = {:.2f}".format(PPL))
+    save(PPL, cfg)
