@@ -1,3 +1,52 @@
+# Assignment 2: HMM Model
+
+In this assignment, we are required to split the Chinese sentence using the trained HMM model, and compute the probability of the sentence using both the forward and backward algorithm.
+
+## 1. Split Chinese Sentence by Viterbi Algorithm
+
+### 1.1 Basic Idea
+
+The basic idea of Viterbi algorithm is quite similar to Dynamic-Programming:
+
+<img src="D:\OneDrive - sjtu.edu.cn\大三上\自然语言处理\Projects&Assignments\Assignment2\README.assets\image-20211027142236731.png" alt="image-20211027142236731" style="zoom:67%;" />
+
+Every value can be simply obtained by the three matrices: start_prob, trans_mat and emission_mat.
+
+### 1.2 Result
+
+```
+Before split: 窦铱明是个好同学
+After split: ['窦铱', '明是', '个', '好', '同学']
+```
+
+## 2. Compute Probability by Forward&Backward Algorithm
+
+### 2.1 Basic Idea
+
+Instead of finding the maximum of the candidates, the forward and backward algorithms computes the sum of the values:
+
+##### Forward Algorithm
+
+<img src="D:\OneDrive - sjtu.edu.cn\大三上\自然语言处理\Projects&Assignments\Assignment2\README.assets\image-20211027142716193.png" alt="image-20211027142716193" style="zoom:67%;" />
+
+##### Backward Algorithm
+
+<img src="D:\OneDrive - sjtu.edu.cn\大三上\自然语言处理\Projects&Assignments\Assignment2\README.assets\image-20211027142736774.png" alt="image-20211027142736774" style="zoom:67%;" />
+
+### 2.2 Result
+
+The results of forward and backward algorithm are the same:
+
+```
+Prob computed by forward algorithm: 3.9499806889177e-29
+Prob computed by backward algorithm: 3.9499806889177e-29
+```
+
+## Appendix
+
+The code of each part:
+
+```python
 import pickle
 import numpy as np
 
@@ -89,3 +138,27 @@ class HMM:
             self.params['emission_mat'][0][test_str[0]] +\
             dp[1][0] * self.params['start_prob'][1] * \
             self.params['emission_mat'][1][test_str[0]]
+            
+def main(test_str, param_path):
+    model = HMM(param_path)
+    # Split
+    split_str = model.viterbi(test_str)
+    print("Before split: {}\nAfter split: {}".format(test_str, split_str))
+    # forward
+    forward_prob=model.forward(test_str)
+    print("Prob computed by forward algorithm: {}".format(forward_prob))
+    # backward
+    backward_prob=model.backward(test_str)
+    print("Prob computed by backward algorithm: {}".format(backward_prob))
+
+if __name__ == '__main__':
+    param_path = './trained_model/hmm_parameters.pkl'
+    test_str = '窦铱明是个好同学'
+    main(test_str, param_path)
+```
+
+If you have any question of the result or code, please feel free to contact me:
+
+E-mail: douyiming@sjtu.edu.cn
+
+Wechat: 18017112986
