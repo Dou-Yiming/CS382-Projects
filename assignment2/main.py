@@ -15,5 +15,5 @@ def main(test_str, param_path):
 
 if __name__ == '__main__':
     param_path = './trained_model/hmm_parameters.pkl'
-    test_str = '陈文迪是个好同学'
+    test_str = '窦铱明是个好同学'
     main(test_str, param_path)
