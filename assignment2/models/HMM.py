@@ -19,6 +19,7 @@ class HMM:
         test_str = str2no(test_str)
         l = len(test_str)
         dp = np.zeros((2, l))
+        path = np.zeros((2, l))
         # start prob
         dp[0][0] = self.params['start_prob'][0] *\
             self.params['emission_mat'][0][test_str[0]]
@@ -27,19 +28,18 @@ class HMM:
         # compute dp
         for i in range(1, l):
             for j in range(2):
-                dp[j][i] = max(
-                    dp[0][i-1] * self.params['trans_mat'][0][j] *
-                    self.params['emission_mat'][j][test_str[i]],
-                    dp[1][i-1] * self.params['trans_mat'][1][j] *
-                    self.params['emission_mat'][j][test_str[i]]
-                )
-        # get label
-        labels = []
-        for i in range(l):
-            if dp[0][i] > dp[1][i]:
-                labels.append(0)
-            else:
-                labels.append(1)
+                if dp[0][i-1] * self.params['trans_mat'][0][j] * self.params['emission_mat'][j][test_str[i]] >\
+                        dp[1][i-1] * self.params['trans_mat'][1][j] * self.params['emission_mat'][j][test_str[i]]:
+                    dp[j][i] = dp[0][i-1] * self.params['trans_mat'][0][j] * \
+                        self.params['emission_mat'][j][test_str[i]]
+                    path[j][i] = 0
+                else:
+                    dp[j][i] = dp[1][i-1] * self.params['trans_mat'][1][j] * \
+                        self.params['emission_mat'][j][test_str[i]]
+                    path[j][i] = 1
+        labels = [0] if dp[0][l-1] > dp[1][l-1] else [1]
+        for i in range(l-1, 0, -1):
+            labels.insert(0, int(path[labels[0]][i]))
         labels = np.array(labels)
         # split
         cut = np.where(labels == 1)[0]
