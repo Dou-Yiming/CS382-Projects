@@ -14,6 +14,7 @@ def tokenizer(line: str) -> List[str]:
 
 class Vocab:
     VOCAB_FILE = "vocab.txt"
+    VOCAB_FILE_JSON = "vocab.json"
     _token_to_idx: Dict[str, int] = {}
     token_freq: List[Tuple[str, int]] = []
 

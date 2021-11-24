@@ -36,9 +36,8 @@ def test2():
     except FileNotFoundError:
         vocab = Vocab(corpus="./data/treebank.txt", max_vocab_size=-1)
         model = CBOW(vocab, vector_dim=12)
-
     start_time = time.time()
-    model.train(corpus="./data/treebank.txt", window_size=4, train_epoch=10, learning_rate=1e-2, save_path="ckpt")
+    model.train(corpus="./data/treebank.txt", window_size=4, train_epoch=10, learning_rate=1e-3, save_path="ckpt")
     end_time = time.time()
 
     print(f"Cost {(end_time - start_time) / 60:.1f} min")

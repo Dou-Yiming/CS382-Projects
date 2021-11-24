@@ -5,9 +5,11 @@ from os.path import join
 from typing import List
 
 import numpy as np
+from tqdm import tqdm
 
 from utils.dataset import Dataset
 from utils.vocab import Vocab
+import ipdb
 
 
 def one_hot(dim: int, idx: int):
@@ -27,8 +29,11 @@ class CBOW:
         self.vocab = vocab
         self.vector_dim = vector_dim
 
-        self.W1 = np.random.uniform(-1, 1, (len(self.vocab), self.vector_dim))  # V x N
-        self.W2 = np.random.uniform(-1, 1, (self.vector_dim, len(self.vocab)))  # N x V
+        # V: vocab length; N: vector dim
+        self.W1 = np.random.uniform(-1, 1,
+                                    (len(self.vocab), self.vector_dim))  # V x N
+        self.W2 = np.random.uniform(-1, 1,
+                                    (self.vector_dim, len(self.vocab)))  # N x V
 
     def train(self, corpus: str, window_size: int, train_epoch: int, learning_rate: float, save_path: str = None):
         dataset = Dataset(corpus, window_size)
@@ -37,7 +42,8 @@ class CBOW:
             start_time = time.time()
             avg_loss = self.train_one_epoch(dataset, learning_rate)
             end_time = time.time()
-            print(f"Epoch {epoch}, loss: {avg_loss:.2f}. Cost {(end_time - start_time) / 60:.1f} min")
+            print(
+                f"Epoch {epoch}, loss: {avg_loss:.2f}. Cost {(end_time - start_time) / 60:.1f} min")
             if save_path is not None:
                 self.save_model(save_path)
 
@@ -46,7 +52,8 @@ class CBOW:
 
         for steps, sample in enumerate(iter(dataset), start=1):
             context_tokens, target_token = sample
-            loss = self.train_one_step(context_tokens, target_token, learning_rate)
+            loss = self.train_one_step(
+                context_tokens, target_token, learning_rate)
             total_loss += loss
 
             if steps % 10000 == 0:
@@ -65,12 +72,30 @@ class CBOW:
         """
 
         # ==== TODO: Construct one-hot vectors ====
+        x = np.array([one_hot(
+            len(self.vocab), self.vocab.token_to_idx(token))
+            for token in context_tokens]).T  # V x C
+        t = np.array(one_hot(
+            len(self.vocab), self.vocab.token_to_idx(target_token))).reshape(-1, 1)
 
         # ==== TODO: Forward step ====
+        h = np.dot(self.W1.T, x)  # N x C
+        h = np.mean(h, axis=1).reshape(-1, 1)  # N x 1
+        u = np.dot(self.W2.T, h)  # V x 1
 
         # ==== TODO: Calculate loss ====
+        y = softmax(u)
+        loss = -(
+            np.sum(u*t) -
+            np.log(np.sum(np.exp(u)))
+        )
 
         # ==== TODO: Update parameters ====
+        e = np.subtract(y, t)  # V x 1
+        self.W1 -= np.dot(x.sum(axis=1).reshape(-1, 1),
+                          (1 / x.shape[1] * learning_rate) *
+                          np.dot(self.W2, e).T)
+        self.W2 -= learning_rate * np.dot(h, e.T)
 
         return loss
 
