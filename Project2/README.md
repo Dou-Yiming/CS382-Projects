@@ -6,7 +6,7 @@
 
 ​	In this project, the CBOW model is implemented, which is a simple way to obtain the vector representations of words by maximizing the probability of center word given the context words. The structure of CBOW model is shown in the following figure:
 
-​	<img src="D:\OneDrive - sjtu.edu.cn\大三上\自然语言处理\Projects&Assignments\Project2\fig\CBOW.png" style="zoom:60%;" />
+​	<img src=".\fig\CBOW.png" style="zoom:60%;" />
 
 ## 2 Derivation of CBOW Model
 
@@ -146,7 +146,7 @@ The final loss is $1.09$, and the similarity between 'i', 'he', 'she' is high.
 
 ​	In Test 2, the CBOW model is trained on large dataset for much longer time, and the final result is shown in the following figure:
 
-![](D:\OneDrive - sjtu.edu.cn\大三上\自然语言处理\Projects&Assignments\Project2\fig\Test2.png)
+![](.\fig\Test2.png)
 
 The final loss is $6.92$, which is lower than $7.0$, meaning that the model is well-trained.
 
@@ -154,7 +154,7 @@ The final loss is $6.92$, which is lower than $7.0$, meaning that the model is w
 
 ​	In Test3, the spearman correlation and pearson correlation are computed to evaluate whether the similar words have similar vectors:
 
-![](D:\OneDrive - sjtu.edu.cn\大三上\自然语言处理\Projects&Assignments\Project2\fig\Test3.png)
+![](.\fig\Test3.png)
 
 The spearman correlation is $0.397$ while the pearson correlation is $0.551$, larger than $0.3$ and $0.4$, respectively.
 
@@ -162,7 +162,7 @@ The spearman correlation is $0.397$ while the pearson correlation is $0.551$, la
 
 ​	Inspired by the assignment 2 of [Stanford CS224N: NLP with Deep Learning](https://www.youtube.com/watch?v=8rXD5-xhemo&list=PLoROMvodv4rOhcuXMZkNm7j3fVwBBY42z), the word vectors trained by our CBOW model are visualized in the following figure:
 
-<img src="D:\OneDrive - sjtu.edu.cn\大三上\自然语言处理\Projects&Assignments\Project2\fig\word_vectors_2.png" style="zoom:70%;" />
+<img src=".\fig\word_vectors_2.png" style="zoom:70%;" />
 
 ​	I choose several pairs of words that have similar meanings, and reduce the dimension of each vector to $2$ by using Singular Value Decomposition, making it possible to put them on the 2-D surface. It is really interesting to see that the similar words tend to stay close in the figure (e.g. film & movie, camera & photography, kid & child, ...)
 
