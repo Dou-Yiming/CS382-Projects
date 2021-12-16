@@ -19,6 +19,7 @@ class Example():
         for data in datas:
             for utt in data:
                 ex = cls(utt)
+                print(ex)
                 examples.append(ex)
         return examples
 
