@@ -1,6 +1,6 @@
 #coding=utf8
 import sys, os, time, gc
-from torch.optim import Adam
+from torch.optim import Adam, AdamW
 
 install_path = os.path.abspath(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.path.append(install_path)
@@ -42,7 +42,7 @@ Example.word2vec.load_embeddings(model.word_embed, Example.word_vocab, device=de
 def set_optimizer(model, args):
     params = [(n, p) for n, p in model.named_parameters() if p.requires_grad]
     grouped_params = [{'params': list(set([p for n, p in params]))}]
-    optimizer = Adam(grouped_params, lr=args.lr)
+    optimizer = AdamW(grouped_params, lr=args.lr)
     return optimizer
 
 

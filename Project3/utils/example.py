@@ -5,7 +5,6 @@ from utils.word2vec import Word2vecUtils
 from utils.evaluator import Evaluator
 
 class Example():
-
     @classmethod
     def configuration(cls, root, train_path=None, word2vec_path=None):
         cls.evaluator = Evaluator()
