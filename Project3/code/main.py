@@ -1,5 +1,3 @@
-# coding=utf8
-import ipdb
 from datasets.dataset import SLUTaggingTrainset
 from models.slu_baseline_tagging import SLUTagging
 from utils.vocab import PAD
@@ -44,9 +42,12 @@ model = SLUTagging(args).to(device)
 train_dataset.word2vec.load_embeddings(
     model.word_embed, train_dataset.word_vocab, device=device)
 
+# build optimizer
 params = [(n, p) for n, p in model.named_parameters() if p.requires_grad]
 grouped_params = [{'params': list(set([p for n, p in params]))}]
 optimizer = AdamW(grouped_params, lr=args.lr)
+
+# train model
 model.train()
 for epoch in range(args.max_epoch):
     epoch_loss = 0.0
