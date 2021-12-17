@@ -7,7 +7,6 @@ EOS = '</s>'
 
 
 class Vocab():
-
     def __init__(self, padding=False, unk=False, min_freq=1, filepath=None):
         super(Vocab, self).__init__()
         self.word2id = dict()

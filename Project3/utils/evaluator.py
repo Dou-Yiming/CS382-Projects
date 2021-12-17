@@ -1,7 +1,4 @@
-#coding=utf8
-
 class Evaluator():
-
     def acc(self, predictions, labels):
         metric_dicts = {}
         metric_dicts['acc'] = self.accuracy(predictions, labels)

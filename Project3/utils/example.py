@@ -19,7 +19,6 @@ class Example():
         for data in datas:
             for utt in data:
                 ex = cls(utt)
-                print(ex)
                 examples.append(ex)
         return examples
 
@@ -29,7 +28,7 @@ class Example():
 
         self.utt = ex['asr_1best']
         self.slot = {}
-        for label in ex['semantic']:
+        for label in ex['semantic']: # e.g. ['inform','操作','导航']
             act_slot = f'{label[0]}-{label[1]}'
             if len(label) == 3:
                 self.slot[act_slot] = label[2]
